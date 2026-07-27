@@ -13,8 +13,6 @@ struct Program
 {
     MTLLibrary metalLibrary;
 
-    Device device;
-
     Kernel!void getKernelByName(immutable(char)* name)
     {
         auto kName = fromStringz(name);
@@ -50,7 +48,7 @@ struct Program
             assert(0);
         }
 
-        return Program(library, device);
+        return Program(library);
     }
 
     __gshared static Program globalProgram;
