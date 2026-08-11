@@ -214,7 +214,7 @@ int main(string[] args)
             return 1;
         }
 
-        auto program = Program.fromFile(device, "./kernels_metal400_64.metallib");
+        auto program = Program.fromFile(device, "./kernels_metal400_64.air");
 
         Program.globalProgram = program;
 
