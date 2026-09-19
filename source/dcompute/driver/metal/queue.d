@@ -16,7 +16,7 @@ struct Queue
     Device device;
     MTLCommandQueue commandQueue;
     MTLCommandBuffer lastActiveBuffer;
-    
+
     // TODO(asadbek): explore options to make the use of async execution with events
     this (Device _device /*bool async*/)
     {
@@ -43,7 +43,7 @@ struct Queue
                 NSError error;
 
                 auto kernel = Program.globalProgram.getKernel!k();
-                
+
                 auto pipelineState = q.device.mtlDevice.newComputePipelineStateWithFunction(
                     kernel.kernelFunction,
                     MTLPipelineOption.None,
@@ -51,11 +51,7 @@ struct Queue
                     error
                 );
 
-                if (pipelineState is null)
-                {
-                    printf("Error: Backend compilation failed: %s\n", error.localizedDescription().ptr);
-                    assert(0);
-                }
+                assert(pipelineState, "Error: Backend compilation failed:");
 
                 auto commandBuffer = q.commandQueue.commandBuffer();
 
@@ -72,18 +68,18 @@ struct Queue
                     {
                         computeEncoder.setBytes(&arg, typeof(arg).sizeof, i);
                     }
-                    else 
+                    else
                     {
                         static assert(0, "Unsupported argument type for Metal kernel dispatch!");
                     }
                 }
 
                 auto threadgroupsPerGrid = MTLSize(grid[0], grid[1], grid[2]);
-                
+
                 auto threadsPerThreadgroup = MTLSize(block[0], block[1], block[2]);
 
                 computeEncoder.dispatchThreads(threadgroupsPerGrid, threadsPerThreadgroup);
-                
+
                 computeEncoder.endEncoding();
                 commandBuffer.commit();
 
@@ -95,7 +91,7 @@ struct Queue
     }
 
     void finish() {
-        if (lastActiveBuffer !is null) { 
+        if (lastActiveBuffer !is null) {
             lastActiveBuffer.waitUntilCompleted();
             lastActiveBuffer.release();
 

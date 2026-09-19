@@ -23,11 +23,7 @@ struct Program
 
         auto kernelFunction = metalLibrary.newFunctionWithName(kNameInNSString);
 
-        if (kernelFunction is null)
-        {
-            printf("Error: Could not find kernel function %s in library.\n", name);
-            assert(0);
-        }
+        assert(kernelFunction, "Error: Could not find kernel function");
 
         return Kernel!void(kernelFunction);
     }
@@ -41,26 +37,18 @@ struct Program
     {
         auto downgraded_llvm_bitcode_path = downgrade_llvm_bitcode(path);
 
-        if (downgraded_llvm_bitcode_path.isNull) {
-            printf("Error occured while downgrading given air\n");
-        }
+        assert(!downgraded_llvm_bitcode_path.isNull, "Error occured while downgrading given air");
 
         auto compiled_metallib_path = metallib_as(downgraded_llvm_bitcode_path.get());
 
-        if (compiled_metallib_path.isNull) {
-            printf("Error occured while compiling the downgraded air to metallib binary\n");
-        }
+        assert(!compiled_metallib_path.isNull, "Error occured while compiling the downgraded air to metallib binary");
 
         NSError error;
         auto nsPath = NSString.create(absolutePath(compiled_metallib_path.get()));
 
         auto library = device.mtlDevice.newLibrary(NSURL.fromPath(nsPath), error);
 
-        if (library is null)
-        {
-            printf("Error loading .metallib: %s\n", error.localizedDescription().ptr);
-            assert(0);
-        }
+        assert(library, "Error loading .metallib");
 
         return Program(library);
     }
